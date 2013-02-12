@@ -124,9 +124,9 @@ class CompressorMixin(object):
     def render_result(self, content, context, deferred, mode):
         if deferred:
             if mode == OUTPUT_FILE:
-                match = re.search(r'(?:src|href)=["\']([^"\']+)', content)
-                if match:
-                    context[self.name] = match.group(1)
+                matches = re.findall(r'(?:src|href)=["\']([^"\']+)', content)
+                if matches:
+                    context[self.name] = matches
                     return ""
             context[self.name] = content
             return ""
@@ -154,7 +154,6 @@ class CompressorNode(CompressorMixin, template.Node):
                 return settings.COMPRESS_DEBUG_TOGGLE in request.GET
 
     def render(self, context, forced=False):
-
         # Check if in debug mode
         if self.debug_mode(context):
             return self.get_original_content(context)
@@ -209,7 +208,7 @@ def compress(parser, token):
     If DEBUG is true off-site files will throw exceptions. If DEBUG is false
     they will be silently stripped.
     """
-
+    
     nodelist = parser.parse(('endcompress',))
     parser.delete_first_token()
 
