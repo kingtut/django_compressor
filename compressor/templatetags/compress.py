@@ -152,7 +152,7 @@ class CompressorNode(CompressorMixin, template.Node):
             # if a RequestContext was used
             request = context.get('request', None)
             if request is not None:
-                self.no_compress = 'MSIE 8' in request.META['HTTP_USER_AGENT']
+                self.no_compress = 'MSIE 8' in request.META.get('HTTP_USER_AGENT', False)
                 return settings.COMPRESS_DEBUG_TOGGLE in request.GET
 
     def render(self, context, forced=False):
