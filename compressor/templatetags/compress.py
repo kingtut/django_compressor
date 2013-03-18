@@ -93,7 +93,7 @@ class CompressorMixin(object):
             return self.render_result(cached_offline, context, deferred, mode)
 
         # Take a shortcut if we really don't have anything to do
-        if ((not settings.COMPRESS_ENABLED and
+        if (self.no_compress or (not settings.COMPRESS_ENABLED and
              not settings.COMPRESS_PRECOMPILERS) and not forced):
             return self.render_result(self.get_original_content(context), context, deferred, mode)
 
@@ -141,6 +141,7 @@ class CompressorNode(CompressorMixin, template.Node):
         self.mode = mode
         self.name = name
         self.tag_opts = tag_opts
+        self.no_compress = False
 
     def get_original_content(self, context):
         return self.nodelist.render(context)
@@ -151,6 +152,7 @@ class CompressorNode(CompressorMixin, template.Node):
             # if a RequestContext was used
             request = context.get('request', None)
             if request is not None:
+                self.no_compress = 'MSIE 8' in request.META['HTTP_USER_AGENT']
                 return settings.COMPRESS_DEBUG_TOGGLE in request.GET
 
     def render(self, context, forced=False):
